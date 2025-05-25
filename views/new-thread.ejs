@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Новый тред</title>
+</head>
+<body>
+  <h1>Создать новый тред</h1>
+  
+  <form method="POST" action="/thread">
+    <input type="text" name="title" placeholder="Заголовок (необязательно)">
+    <br>
+    <textarea name="content" rows="6" required placeholder="Содержание треда"></textarea>
+    <br>
+    <button type="submit">Создать тред</button>
+  </form>
+  
+  <a href="/">Назад</a>
+</body>
+</html>

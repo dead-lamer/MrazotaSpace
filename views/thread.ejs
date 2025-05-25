@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= thread.title %></title>
+  <style>
+    body { max-width: 800px; margin: 0 auto; padding: 20px; }
+    .post { border-bottom: 1px solid #eee; margin: 10px 0; padding: 10px; }
+    .admin { display: inline-block; padding: 2px 6px; margin-left: 10px; border: 1px solid #000; border-radius: 3px; font-size: 0.8em; background-color: #fff; }
+  </style>
+</head>
+<body>
+  <h2><%= thread.title %></h2>
+  <p><%= thread.content %></p>
+  <small>Создан: <%= formatDate(thread.created_at) %>
+    <% if (thread.user_ip === adminIP) { %>
+    <span class="admin">mrazota</span>
+    <% } %>
+  </small>
+
+  <h3>Комментарии:</h3>
+  <% posts.forEach(post => { %>
+  <div class="post">
+    <p><%= post.content %></p>
+    <small>
+      <%= formatDate(post.created_at) %>
+      <% if (post.user_ip === adminIP) { %>
+        <span class="admin">mrazota</span>
+      <% } %>
+    </small>
+
+    <!-- Кнопка лайка -->
+    <button 
+      class="like-btn" 
+      data-post-id="<%= post.id %>" 
+      onclick="likePost(<%= post.id %>)">
+      +<span class="count"><%= post.likes_count %></span>
+    </button>
+  </div>
+  <% }); %>
+
+  <form method="POST" action="/thread/<%= thread.id %>/comment">
+    <textarea name="content" rows="4" required></textarea>
+    <br>
+    <button type="submit">Отправить комментарий</button>
+    <a href="/">Назад к списку тредов</a>
+  </form>
+
+  <script>
+  async function likePost(postId) {
+    if (!postId || isNaN(parseInt(postId))) {
+      alert('Некорректный ID поста');
+      return;
+    }
+
+    const btn = document.querySelector(`[data-post-id="${postId}"].like-btn`);
+    if (!btn) {
+      console.error('Кнопка лайка не найдена для ID:', postId);
+      return;
+    }
+
+    if (btn.classList.contains('liked')) {
+      alert('Вы уже лайкнули этот комментарий!');
+      return;
+    }
+
+    try {
+      const response = await fetch('/like-post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          postId: parseInt(postId),
+          clientToken: localStorage.getItem('forumToken')
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        btn.classList.add('liked');
+        btn.querySelector('.count').textContent = data.likes;
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error);
+      }
+    } catch (e) {
+      console.error('Ошибка сети:', e);
+    }
+  }
+  </script>
+
+</body>
+</html>

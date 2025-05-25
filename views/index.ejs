@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Анонимный форум</title>
+  <style>
+    body { max-width: 800px; margin: 0 auto; padding: 20px; }
+    .thread { border: 1px solid #ccc; margin: 10px 0; padding: 15px; }
+    .admin { display: inline-block; padding: 2px 6px; margin-left: 10px; border: 1px solid #000; border-radius: 3px; font-size: 0.8em; background-color: #fff; }
+  </style>
+</head>
+<body>
+  <h1>Анонимный форум</h1>
+  
+  <a href="/new-thread">Создать новый тред</a>
+
+  <% threads.forEach(thread => { %>
+    <div class="thread">
+      <h3>
+	      <%= thread.title %>
+              <button 
+                class="like-btn" 
+                data-thread-id="<%= thread.id %>" 
+                onclick="likeThread(<%= thread.id %>)">
+                +<span class="count"><%= thread.likes_count %></span>
+              </button> 
+      </h3>
+      <p><%= thread.content %></p>
+      <small><%= formatDate(thread.last_activity) %>
+	      <% if (thread.user_ip === adminIP) { %> 
+	      <span class="admin">mrazota</span>
+	      <% } %>
+      </small>
+      <br>
+      <a href="/thread/<%= thread.id %>">Открыть тред</a>
+    </div>
+  <% }); %>
+
+<script>
+  async function likeThread(threadId) {
+    // Добавляем лог для отладки
+    console.log('Получен threadId:', threadId);
+
+    // Проверка на валидность ID
+    if (!threadId || isNaN(parseInt(threadId))) {
+      alert('Некорректный ID треда');
+      return;
+    }
+
+    const btn = document.querySelector(`[data-thread-id="${threadId}"].like-btn`);
+    if (!btn) {
+      console.error('Кнопка лайка не найдена для ID:', threadId);
+      return;
+    }
+
+    if (btn.classList.contains('liked')) {
+      alert('Вы уже лайкнули этот пост!');
+      return;
+    }
+
+    try {
+      const response = await fetch('/like', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          threadId: parseInt(threadId), 
+          clientToken: localStorage.getItem('forumToken')
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        btn.classList.add('liked');
+        btn.querySelector('.count').textContent = data.likes;
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error); 
+      }
+    } catch (e) {
+      console.error('Ошибка сети:', e);
+    }
+  }
+  </script>
+</body>
+</html>
