@@ -12,7 +12,7 @@ const validateInput = (input, maxLength = 1000) => {
   if (input.length > maxLength) return false;
   return /^[\w\s\p{L}.,!?()@#$%^&*\-+=:;'"<>\/\\[\]{}|~`€£¥§–—―…]{1,1000}$/u.test(input);
 };
-const adminIP = ''; 
+const adminIP = '127.0.0.1'; 
 
 /*const limiter = rateLimit({
   windowMs: 15 * 1000, 
@@ -20,10 +20,10 @@ const adminIP = '';
   message: "Too many requests, please try again later",
 });*/
 
-const options = {
+/*const options = {
   key: fs.readFileSync('/'),
   cert: fs.readFileSync('/'),
-};
+};*/
 
 // Настройка шаблонизатора EJS
 app.set('trust proxy', true);
@@ -33,7 +33,7 @@ app.use(express.static('public'));
 app.locals.formatDate = helpers.formatDate;
 app.locals.adminIP = adminIP;
 // Подключение к БД
-const db = new sqlite3.Database('./path/to/database/database.db', (err) => {
+const db = new sqlite3.Database('./database.db', (err) => {
   if (err) console.error(err.message);
   console.log('Connected to the database.');
 });
@@ -308,7 +308,7 @@ app.post('/like-post', (req, res) => {
   });
 });
 
-https.createServer(options, app).listen(443, () => {
+/*https.createServer(options, app).listen(443, () => {
   console.log('HTTPS server running on port 443');
 });
 
@@ -316,13 +316,13 @@ const http = require('http');
 http.createServer((req, res) => {
   res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
   res.end();
-}).listen(80);
+}).listen(80);*/
 
 // отладочный код
-/*const PORT = 3000;
+const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
-});*/ //!!!!!
+}); //!!!!!
 
 app.get('/new-thread', (req, res) => {
   res.render('new-thread');
@@ -336,4 +336,3 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).render('500', { error: err.message });
 });
-
