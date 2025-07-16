@@ -57,13 +57,13 @@ db.serialize(() => {
     CREATE TABLE IF NOT EXISTS threads (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       title TEXT,
-      content TEXT NOT NULL,  
+      content TEXT NOT NULL,
       user_ip TEXT NOT NULL,
+      likes_count INTEGER DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
-
-
+  
   db.run(`
     CREATE TABLE IF NOT EXISTS posts (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -75,14 +75,14 @@ db.serialize(() => {
       FOREIGN KEY(thread_id) REFERENCES threads(id)
     )
   `);
-
+  
   db.run(`
     CREATE TABLE IF NOT EXISTS likes_log (
       hash TEXT PRIMARY KEY,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
-
+  
   db.run(`
     CREATE TABLE IF NOT EXISTS post_likes_log (
       hash TEXT PRIMARY KEY,
@@ -90,7 +90,6 @@ db.serialize(() => {
     )
   `);
 });
-
 
 
 function generateHash(req, id) {
